@@ -2,7 +2,7 @@ import type { WebWorkerMLCEngine } from "@mlc-ai/web-llm";
 
 // Loaded on demand so apps don't pay ~6 MB of JS until a model is actually needed.
 const webllm = () => import("@mlc-ai/web-llm");
-import type { DeviceProfile, GenerateRequest, GenerateResult, LoadProgress, ModelSpec, TextEngine } from "@be-natif/core";
+import type { DeviceProfile, GenerateRequest, GenerateResult, LoadOptions, LoadProgress, ModelSpec, TextEngine } from "@be-natif/core";
 
 export interface WebLLMEngineOptions {
   /** Override how the worker is created (e.g. bundlers that need an explicit worker import). */
@@ -13,6 +13,7 @@ export class WebLLMEngine implements TextEngine {
   readonly name = "webllm";
   private engine: WebWorkerMLCEngine | undefined;
   private loadedId: string | undefined;
+  private loadedCtx: number | undefined;
 
   constructor(private opts: WebLLMEngineOptions = {}) {}
 
@@ -26,8 +27,10 @@ export class WebLLMEngine implements TextEngine {
     return (await webllm()).hasModelInCache(id);
   }
 
-  async load(id: string, onProgress?: (p: LoadProgress) => void): Promise<void> {
-    if (this.loadedId === id) return;
+  async load(id: string, onProgress?: (p: LoadProgress) => void, opts?: LoadOptions): Promise<void> {
+    const ctx = opts?.contextWindow;
+    if (this.loadedId === id && this.loadedCtx === ctx) return;
+    const chatOpts = ctx ? { context_window_size: ctx } : undefined;
     // Ask the browser not to evict multi-GB weights under storage pressure.
     void navigator.storage?.persist?.().catch(() => {});
     const initProgressCallback = (r: { progress: number; text: string }) =>
@@ -39,12 +42,13 @@ export class WebLLMEngine implements TextEngine {
       });
     if (!this.engine) {
       const worker = this.opts.createWorker?.() ?? new Worker(new URL("./llm.worker.js", import.meta.url), { type: "module" });
-      this.engine = await (await webllm()).CreateWebWorkerMLCEngine(worker, id, { initProgressCallback });
+      this.engine = await (await webllm()).CreateWebWorkerMLCEngine(worker, id, { initProgressCallback }, chatOpts);
     } else {
       this.engine.setInitProgressCallback(initProgressCallback);
-      await this.engine.reload(id);
+      await this.engine.reload(id, chatOpts);
     }
     this.loadedId = id;
+    this.loadedCtx = ctx;
   }
 
   /**
@@ -95,6 +99,19 @@ export class WebLLMEngine implements TextEngine {
   }
 
   async generate(req: GenerateRequest): Promise<GenerateResult> {
+    try {
+      return await this.generateRaw(req);
+    } catch (e) {
+      // WebLLM sometimes throws plain strings across the worker boundary; always surface an Error.
+      if (e instanceof Error) throw e;
+      const msg = String(e);
+      const err = new Error(msg);
+      err.name = /^(\w+Error):/.exec(msg)?.[1] ?? "Error";
+      throw err;
+    }
+  }
+
+  private async generateRaw(req: GenerateRequest): Promise<GenerateResult> {
     if (!this.engine || !this.loadedId) throw new Error("WebLLMEngine: no model loaded");
     const t0 = performance.now();
     let ttft = -1;

@@ -1,18 +1,45 @@
 {
   "name": "@be-natif/expo",
   "version": "0.1.0",
-  "license": "Apache-2.0",
   "description": "On-device AI for Expo apps: same API as natif and @be-natif/react-native, llama.cpp under the hood, resumable model downloads with expo-file-system. Needs a development build (not Expo Go).",
+  "homepage": "https://benatif.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adanzweig/natif.git",
+    "directory": "packages/sdk-expo"
+  },
+  "bugs": "https://github.com/adanzweig/natif/issues",
+  "keywords": [
+    "ai",
+    "llm",
+    "on-device",
+    "local-ai",
+    "webgpu",
+    "llama.cpp",
+    "react-native",
+    "expo",
+    "privacy",
+    "json-schema"
+  ],
+  "license": "Apache-2.0",
   "type": "module",
   "exports": {
-    ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js", "require": "./dist/index.cjs" },
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
     "./app.plugin.js": "./app.plugin.js",
     "./package.json": "./package.json"
   },
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "files": ["dist", "app.plugin.js"],
+  "files": [
+    "dist",
+    "app.plugin.js",
+    "README.md"
+  ],
   "sideEffects": false,
   "scripts": {
     "build": "tsup",

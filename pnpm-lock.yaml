@@ -212,6 +212,9 @@ importers:
       '@be-natif/core':
         specifier: workspace:*
         version: link:../sdk-core
+      '@huggingface/transformers':
+        specifier: 4.3.2
+        version: 4.3.2(@types/node@26.6.6)
       '@mlc-ai/web-llm':
         specifier: 0.2.89
         version: 0.2.89

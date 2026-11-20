@@ -12,6 +12,7 @@ export const highEndWeb: DeviceProfile = {
 export class MockEngine implements TextEngine {
   name = "mock";
   loads: string[] = [];
+  loadOpts: unknown[] = [];
   calls: GenerateRequest[] = [];
   cached = new Set<string>();
   failLoad = new Set<string>();
@@ -26,8 +27,9 @@ export class MockEngine implements TextEngine {
   async isCached(id: string) {
     return this.cached.has(id);
   }
-  async load(id: string) {
+  async load(id: string, _p?: unknown, opts?: unknown) {
     if (this.failLoad.has(id)) throw new Error("load failed");
+    this.loadOpts.push(opts);
     this.loads.push(id);
     this.current = id;
     this.cached.add(id);

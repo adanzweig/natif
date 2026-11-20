@@ -1,8 +1,27 @@
 {
   "name": "@be-natif/react-native",
   "version": "0.1.0",
-  "license": "Apache-2.0",
   "description": "On-device AI for React Native apps: picks the right local model for each phone, runs it with llama.cpp, falls back to the cloud only with consent.",
+  "homepage": "https://benatif.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adanzweig/natif.git",
+    "directory": "packages/sdk-react-native"
+  },
+  "bugs": "https://github.com/adanzweig/natif/issues",
+  "keywords": [
+    "ai",
+    "llm",
+    "on-device",
+    "local-ai",
+    "webgpu",
+    "llama.cpp",
+    "react-native",
+    "expo",
+    "privacy",
+    "json-schema"
+  ],
+  "license": "Apache-2.0",
   "type": "module",
   "exports": {
     ".": {
@@ -21,7 +40,8 @@
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "README.md"
   ],
   "sideEffects": false,
   "scripts": {

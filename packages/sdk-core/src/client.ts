@@ -5,7 +5,7 @@ import { deviceKey as computeDeviceKey } from "./device";
 import { DeviceUnavailableError, SchemaValidationError } from "./errors";
 import { type Grounding, groundedMessage, Knowledge, type KnowledgeChunk, type KnowledgeOptions, toSources } from "./knowledge";
 import { BENCHMARK_MESSAGES, buildExtractMessages } from "./prompt";
-import { parseModelOutput, repairMessage, schemaHash, toJsonSchema } from "./schema";
+import { extractJson, parseModelOutput, repairMessage, schemaHash, toJsonSchema } from "./schema";
 import { decideRuntime, selectModel, type DeviceRecommendation } from "./selection";
 import { type LocalTask, TaskStore } from "./tasks";
 import { TelemetryQueue, type TelemetryTransport } from "./telemetry";
@@ -92,6 +92,12 @@ export interface ClientOptions {
    * set this if you know better. Default: 60% of available RAM on native, 50% of total on web.
    */
   memoryBudgetMB?: number;
+  /**
+   * Tokens of context to allocate for the text model (prompt + output). Default: the engine's
+   * (4096 on native). Raise it for long prompts or long outputs such as generated code; it uses
+   * more memory.
+   */
+  contextWindow?: number;
   /** Free the model from RAM/GPU after this long without use (ms). Default 2 min; 0 = never. */
   idleUnloadMs?: number;
 }
@@ -165,7 +171,7 @@ export class NatifClient {
    * it on every turn; the result returns the updated history.
    * On-device only for now: throws DeviceUnavailableError when the device can't run a model.
    */
-  async chat(req: ChatRequest): Promise<ChatResult> {
+  async chat<T = unknown>(req: ChatRequest): Promise<ChatResult<T>> {
     const message = req.message?.trim();
     if (!message) throw new TypeError("chat: message is required");
     if (this.mode === "cloud-only") throw new DeviceUnavailableError("forced_cloud", "chat runs on the device only");
@@ -188,11 +194,14 @@ export class NatifClient {
       }
       const messages = [...(req.system ? [{ role: "system" as const, content: req.system }] : []), ...kept, sent];
       let filtering = false; // hide <think>…</think> if a model emits it anyway
-      const r = await this.textEngine().generate({
+      const zodSchema = req.schema instanceof z.ZodType ? req.schema : undefined;
+      const jsonSchema = zodSchema ? toJsonSchema(zodSchema) : (req.schema as Record<string, unknown> | undefined);
+      let r = await this.textEngine().generate({
         messages,
+        jsonSchema,
         maxTokens: req.maxTokens ?? 512,
-        temperature: req.temperature ?? 0.7,
-        disableThinking: ready.spec.disableThinking,
+        temperature: req.temperature ?? (jsonSchema ? 0.2 : 0.7),
+        disableThinking: jsonSchema ? true : ready.spec.disableThinking,
         signal: req.signal,
         onToken: req.onToken
           ? (d) => {
@@ -205,9 +214,33 @@ export class NatifClient {
             }
           : undefined,
       });
+      let data: T | undefined;
+      if (jsonSchema) {
+        const parse = (raw: string): { ok: true; data: T } | { ok: false; error: string; issues?: unknown } => {
+          if (zodSchema) return parseModelOutput(zodSchema, raw) as { ok: true; data: T } | { ok: false; error: string };
+          try { return { ok: true, data: extractJson(raw) as T }; } catch (e) { return { ok: false, error: (e as Error).message }; }
+        };
+        let out = parse(r.text);
+        if (!out.ok) {
+          const first = r;
+          r = await this.textEngine().generate({
+            messages: [...messages, { role: "assistant", content: r.text }, { role: "user", content: repairMessage(out.error) }],
+            jsonSchema,
+            maxTokens: req.maxTokens ?? 512,
+            temperature: 0,
+            disableThinking: true,
+            signal: req.signal,
+          });
+          r = { ...r, promptTokens: r.promptTokens + first.promptTokens, completionTokens: r.completionTokens + first.completionTokens };
+          out = parse(r.text);
+          if (!out.ok) throw new SchemaValidationError(out.issues ?? out.error, r.text);
+        }
+        data = out.data;
+      }
       const text = r.text.replace(/<think>[\s\S]*?<\/think>/g, "").trim();
       return {
         text,
+        ...(jsonSchema ? { data } : {}),
         history: [...history, user, { role: "assistant", content: text }],
         ...(chunks ? { sources: toSources(chunks, text) } : {}),
         meta: {
@@ -459,7 +492,7 @@ export class NatifClient {
         if (!sel.ok) return { failure: sel.reason };
         const t0 = now();
         try {
-          await engine.load(sel.engineModelId, this.opts.onDownloadProgress);
+          await engine.load(sel.engineModelId, this.opts.onDownloadProgress, this.opts.contextWindow ? { contextWindow: this.opts.contextWindow } : undefined);
         } catch {
           // Mark it as unusable on this device so selection skips it, then try the next one.
           await this.platform.storage.set<BenchmarkResult>(this.benchKey(key, sel.spec.id), {

@@ -1,4 +1,4 @@
-import type { DeviceProfile, GenerateRequest, GenerateResult, LoadProgress, ModelSpec, TextEngine } from "@be-natif/core";
+import type { DeviceProfile, GenerateRequest, GenerateResult, LoadOptions, LoadProgress, ModelSpec, TextEngine } from "@be-natif/core";
 import type { ModelFiles } from "./files";
 
 /** The slice of llama.rn this engine uses (injected so tests don't need a phone). */
@@ -34,6 +34,7 @@ export class LlamaRNEngine implements TextEngine {
   readonly name = "llama.rn";
   private ctx: LlamaContextLike | undefined;
   private loadedId: string | undefined;
+  private loadedCtx: number | undefined;
   private urls = new Map<string, string>();
 
   constructor(
@@ -78,15 +79,17 @@ export class LlamaRNEngine implements TextEngine {
     onProgress?.({ modelId: id, progress: 1, phase: "ready", text: "downloaded" });
   }
 
-  async load(id: string, onProgress?: (p: LoadProgress) => void): Promise<void> {
-    if (this.loadedId === id && this.ctx) return;
+  async load(id: string, onProgress?: (p: LoadProgress) => void, opts?: LoadOptions): Promise<void> {
+    const nCtx = opts?.contextWindow ?? this.opts.nCtx ?? 4096;
+    if (this.loadedId === id && this.ctx && this.loadedCtx === nCtx) return;
     await this.unload();
     const file = await this.ensureFile(id, onProgress);
     this.ctx = await this.llama.initLlama(
-      { model: file, n_ctx: this.opts.nCtx ?? 4096, n_gpu_layers: this.opts.nGpuLayers ?? 99, use_mlock: false, use_progress_callback: true },
+      { model: file, n_ctx: nCtx, n_gpu_layers: this.opts.nGpuLayers ?? 99, use_mlock: false, use_progress_callback: true },
       (p) => onProgress?.({ modelId: id, progress: p > 1 ? p / 100 : p, phase: "compile" }),
     );
     this.loadedId = id;
+    this.loadedCtx = nCtx;
     onProgress?.({ modelId: id, progress: 1, phase: "ready" });
   }
 

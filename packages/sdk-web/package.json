@@ -1,21 +1,52 @@
 {
   "name": "@be-natif/web",
   "version": "0.1.0",
+  "description": "On-device AI for the browser: LLM chat, JSON output, classification and image generation on WebGPU. No API key.",
+  "homepage": "https://benatif.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adanzweig/natif.git",
+    "directory": "packages/sdk-web"
+  },
+  "bugs": "https://github.com/adanzweig/natif/issues",
+  "keywords": [
+    "ai",
+    "llm",
+    "on-device",
+    "local-ai",
+    "webgpu",
+    "llama.cpp",
+    "react-native",
+    "expo",
+    "privacy",
+    "json-schema"
+  ],
   "license": "Apache-2.0",
   "type": "module",
-  "exports": { ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" } },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "files": ["dist"],
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "sideEffects": false,
   "scripts": {
-    "build": "tsup src/index.ts src/llm.worker.ts --format esm --dts --clean --external @mlc-ai/web-llm --external @be-natif/core --external zod",
+    "build": "tsup src/index.ts src/llm.worker.ts src/image.worker.ts --format esm --dts --clean --external @mlc-ai/web-llm --external @huggingface/transformers --external @be-natif/core --external zod",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@be-natif/core": "workspace:*",
-    "@mlc-ai/web-llm": "0.2.89"
+    "@mlc-ai/web-llm": "0.2.89",
+    "@huggingface/transformers": "4.3.2"
   },
-  "peerDependencies": { "zod": "^4.0.0" }
+  "peerDependencies": {
+    "zod": "^4.0.0"
+  }
 }

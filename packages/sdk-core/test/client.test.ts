@@ -246,3 +246,48 @@ describe("classify", () => {
     await expect(ai.classify({ text: "hi", labels: ["only"] })).rejects.toThrow(/2 labels/);
   });
 });
+
+describe("chat with schema (generic JSON protocol)", () => {
+  const Spec = { type: "object", properties: { title: { type: "string" }, lives: { type: "integer" } }, required: ["title", "lives"] };
+
+  it("sends a plain JSON Schema to the engine and returns the parsed data", async () => {
+    const engine = new MockEngine(() => '{"title":"Empanada Rain","lives":3}');
+    const ai = createCoreClient({}, platform(engine));
+    const r = await ai.chat<{ title: string; lives: number }>({ system: "You design games.", message: "catch empanadas", schema: Spec, maxTokens: 300 });
+    expect(r.data).toEqual({ title: "Empanada Rain", lives: 3 });
+    const call = engine.calls.find((c) => c.jsonSchema)!;
+    expect(call.jsonSchema).toEqual(Spec);
+    expect(call.disableThinking).toBe(true);
+    expect(call.maxTokens).toBe(300);
+  });
+
+  it("validates with zod and repairs once", async () => {
+    const engine = new MockEngine((_req, n) => (n === 1 ? '{"lives":"three"}' : '{"title":"Penales","lives":5}'));
+    const ai = createCoreClient({}, platform(engine));
+    const r = await ai.chat({ message: "Messi penalties", schema: z.object({ title: z.string(), lives: z.number().int() }) });
+    expect(r.data).toEqual({ title: "Penales", lives: 5 });
+    expect(engine.calls.filter((c) => c.jsonSchema)).toHaveLength(2);
+  });
+
+  it("throws SchemaValidationError when the repair also fails", async () => {
+    const engine = new MockEngine(() => "not json");
+    const ai = createCoreClient({}, platform(engine));
+    await expect(ai.chat({ message: "x", schema: Spec })).rejects.toBeInstanceOf(SchemaValidationError);
+  });
+
+  it("plain chat has no data and keeps thinking settings", async () => {
+    const engine = new MockEngine();
+    const ai = createCoreClient({}, platform(engine));
+    const r = await ai.chat({ message: "hola" });
+    expect("data" in r).toBe(false);
+  });
+});
+
+describe("contextWindow", () => {
+  it("is passed to the engine when loading", async () => {
+    const engine = new MockEngine();
+    const ai = createCoreClient({ contextWindow: 12288 }, platform(engine));
+    await ai.chat({ message: "hola" });
+    expect(engine.loadOpts[0]).toEqual({ contextWindow: 12288 });
+  });
+});

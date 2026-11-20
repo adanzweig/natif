@@ -1,11 +1,30 @@
 {
   "name": "@be-natif/mcp",
   "version": "0.1.0",
-  "license": "Apache-2.0",
   "description": "MCP server that helps AI coding assistants add on-device AI to apps with benatif.",
+  "homepage": "https://benatif.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adanzweig/natif.git",
+    "directory": "packages/mcp"
+  },
+  "bugs": "https://github.com/adanzweig/natif/issues",
+  "keywords": [
+    "ai",
+    "llm",
+    "on-device",
+    "local-ai",
+    "webgpu",
+    "llama.cpp",
+    "react-native",
+    "expo",
+    "privacy",
+    "json-schema"
+  ],
+  "license": "Apache-2.0",
   "type": "module",
   "bin": {
-    "benatif-mcp": "./dist/cli.js"
+    "natif-mcp": "./dist/cli.js"
   },
   "exports": {
     ".": {
@@ -20,7 +39,8 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "README.md"
   ],
   "scripts": {
     "build": "tsup",

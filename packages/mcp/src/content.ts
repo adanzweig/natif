@@ -125,6 +125,40 @@ const { data, meta } = await ai.extractWithMeta({ task: "daily-checkin", schema:
 Output is generated under the JSON Schema (constrained decoding), parsed and validated with zod; on failure the model gets one repair attempt, then SchemaValidationError.
 Tips: write an explicit rubric in systemPrompt (what each number means) for consistent scores; keep schemas small and flat; temperature defaults to 0 for repeatable results.`,
   },
+  json: {
+    title: "JSON output with any schema (chat + schema)",
+    body: `// No task needed: pass a JSON Schema (plain object) or a zod schema to chat().
+const r = await ai.chat({
+  system: "You design tiny arcade games.",
+  message: "A game where I catch empanadas and dodge rocks",
+  schema: {
+    type: "object",
+    properties: { title: { type: "string" }, lives: { type: "integer" } },
+    required: ["title", "lives"],
+  },
+  maxTokens: 400,
+});
+r.data; // { title: "Empanada Escape", lives: 3 }
+
+Generation is constrained to the schema, thinking is turned off, and the result is parsed (and validated, with zod). One repair attempt, then SchemaValidationError.
+Use it to build multi-step pipelines in your app: each step is a chat() call with its own system prompt and schema. Natif does not orchestrate the steps: your app does.`,
+  },
+  context: {
+    title: "Long prompts and outputs (contextWindow)",
+    body: `const ai = createClient({ contextWindow: 12288 }); // tokens of prompt + output
+
+Default: the engine's (4096 on native). Raise it for long inputs or long outputs such as generated code. It uses more memory (KV cache), so keep it as small as the job allows. Exceeding it throws ContextWindowSizeExceededError.`,
+  },
+  image: {
+    title: "Generate an image (web)",
+    body: `const { blob, width, height, meta } = await ai.image({
+  prompt: "pixel art knight, white background",
+  onProgress: (p) => setProgress(p.progress), // first use downloads ~1.4 GB, then cached
+});
+img.src = URL.createObjectURL(blob); // 384×384 PNG
+
+Janus-Pro-1B on WebGPU, in its own worker. By default the text model is unloaded first so only one large model is in memory (pass keepTextModel: true to skip). ai.unload() frees both; weights stay cached. Web only for now (needs WebGPU).`,
+  },
   chat: {
     title: "Chat (streaming, history)",
     body: `const r = await ai.chat({

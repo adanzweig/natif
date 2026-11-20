@@ -96,12 +96,17 @@ export interface LoadProgress {
 }
 
 /** Implemented by each platform (WebLLM in sdk-web, llama.rn in sdk-react-native, a mock in tests). */
+export interface LoadOptions {
+  /** Tokens of context (prompt + output) to allocate. Bigger uses more memory. */
+  contextWindow?: number;
+}
+
 export interface TextEngine {
   readonly name: string;
   /** Platform-specific model id for a catalog entry, or undefined if this engine can't run it. */
   resolveModelId(spec: ModelSpec, device: DeviceProfile): string | undefined;
   isCached(engineModelId: string): Promise<boolean>;
-  load(engineModelId: string, onProgress?: (p: LoadProgress) => void): Promise<void>;
+  load(engineModelId: string, onProgress?: (p: LoadProgress) => void, opts?: LoadOptions): Promise<void>;
   /**
    * Optional: put the weights on disk without loading them into GPU/RAM, so a later `load` only
    * compiles. Must skip files already stored, so an interrupted download resumes where it stopped.
@@ -205,6 +210,12 @@ export interface ChatRequest {
   signal?: AbortSignal;
   /** Override the client's `grounding` for this call ("off" skips knowledge). */
   grounding?: import("./knowledge").Grounding;
+  /**
+   * Force the reply to be JSON that follows this schema (a plain JSON Schema object or a zod
+   * schema). The parsed value comes back in `data`; with zod it is also validated. One repair
+   * attempt is made if the output doesn't parse or validate.
+   */
+  schema?: Record<string, unknown> | import("zod").ZodType;
 }
 
 export interface ChatMeta {
@@ -222,8 +233,10 @@ export interface ChatMeta {
   droppedMessages: number;
 }
 
-export interface ChatResult {
+export interface ChatResult<T = unknown> {
   text: string;
+  /** The parsed JSON when the request had a `schema`. */
+  data?: T;
   /** history + the new user message + the reply. Pass it back on the next turn. */
   history: ChatMessage[];
   meta: ChatMeta;
