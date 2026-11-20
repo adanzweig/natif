@@ -9,7 +9,7 @@ Natif picks the right local model for each device, downloads it once, runs it on
 - For AI assistants: https://benatif.com/llms.txt · MCP: `npx -y @be-natif/mcp`
 
 ```bash
-npm i @be-natif/web zod
+npm i @be-natif/web
 ```
 
 ```ts

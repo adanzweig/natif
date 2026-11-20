@@ -28,7 +28,7 @@ Try every endpoint in the browser: ${SITE}/playground/`,
   },
   "install-web": {
     title: "Install (web)",
-    body: `npm i @be-natif/web zod
+    body: `npm i @be-natif/web
 
 Requirements: WebGPU for text models (Chrome/Edge 113+ desktop, Safari with WebGPU). Without WebGPU the SDK reports DeviceUnavailableError (reason "no_webgpu") or uses the cloud fallback if allowed.
 Bundlers: works with Vite, Next.js (client components only: "use client", never import in server code), webpack 5. The model runs in a Web Worker that the SDK creates; no extra config with Vite. With Next.js, create the client inside useEffect or a lazy module so it never runs during SSR.`,
