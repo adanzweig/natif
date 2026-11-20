@@ -1,0 +1,13 @@
+export * from "./types";
+export * from "./errors";
+export { MODEL_CATALOG, findModel } from "./catalog";
+export { selectModel, decideRuntime, memoryBudgetMB, AVAILABLE_MEMORY_SHARE, TOTAL_MEMORY_SHARE, UNKNOWN_FREE_MEMORY_CAP_MB, STORAGE_HEADROOM, type DeviceRecommendation, type ModelSelection, type RuntimeDecision } from "./selection";
+export { toJsonSchema, extractJson, parseModelOutput, schemaHash } from "./schema";
+export { deviceKey, deviceClassTraits } from "./device";
+export { TelemetryQueue, TelemetryEventSchema, sanitizeEvent, type TelemetryEvent, type TelemetryTransport } from "./telemetry";
+export { TaskStore, completeTask, TASK_DEFAULTS, type LocalTask, type TaskBundle } from "./tasks";
+export { estimateSavingsUsd, DEFAULT_PRICE_REFERENCE, type PriceReference, type CloudExtractResponse } from "./cloud";
+export { buildExtractMessages } from "./prompt";
+export { NatifClient, createCoreClient, trimHistory, BUILTIN_TASKS, CLASSIFY_TASK, type ClassifyRequest, type ClassifyResult, type ClientOptions, type PlatformAdapter, type CapabilityReport } from "./client";
+export { MemoryStore } from "./memory-store";
+export { Knowledge, chunkDocs, rankChunks, groundedMessage, toSources, type KnowledgeOptions, type KnowledgeChunk, type KnowledgeDoc, type Grounding, type Source } from "./knowledge";

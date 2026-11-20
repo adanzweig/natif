@@ -1,0 +1,51 @@
+{
+  "name": "@be-natif/react-native",
+  "version": "0.1.0",
+  "license": "Apache-2.0",
+  "description": "On-device AI for React Native apps: picks the right local model for each phone, runs it with llama.cpp, falls back to the cloud only with consent.",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./package.json": "./package.json",
+    "./lib": {
+      "types": "./dist/lib.d.ts",
+      "import": "./dist/lib.js",
+      "require": "./dist/lib.cjs"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@be-natif/core": "workspace:*"
+  },
+  "peerDependencies": {
+    "@dr.pogodin/react-native-fs": ">=2.30.0",
+    "@react-native-async-storage/async-storage": ">=2.0.0",
+    "llama.rn": ">=0.13.0-rc.0",
+    "react-native": ">=0.76.0",
+    "react-native-device-info": ">=14.0.0",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@dr.pogodin/react-native-fs": "2.41.0",
+    "@react-native-async-storage/async-storage": "3.1.1",
+    "llama.rn": "0.13.0-rc.12",
+    "react-native": "0.88.1",
+    "react-native-device-info": "15.0.2",
+    "zod": "4.6.7"
+  }
+}

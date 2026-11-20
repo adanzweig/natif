@@ -1,0 +1,43 @@
+{
+  "name": "@be-natif/expo",
+  "version": "0.1.0",
+  "license": "Apache-2.0",
+  "description": "On-device AI for Expo apps: same API as natif and @be-natif/react-native, llama.cpp under the hood, resumable model downloads with expo-file-system. Needs a development build (not Expo Go).",
+  "type": "module",
+  "exports": {
+    ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js", "require": "./dist/index.cjs" },
+    "./app.plugin.js": "./app.plugin.js",
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": ["dist", "app.plugin.js"],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@be-natif/core": "workspace:*",
+    "@be-natif/react-native": "workspace:*"
+  },
+  "peerDependencies": {
+    "@react-native-async-storage/async-storage": ">=2.0.0",
+    "expo": ">=54.0.0",
+    "expo-device": ">=7.0.0",
+    "expo-file-system": ">=19.0.0",
+    "llama.rn": ">=0.13.0-rc.0",
+    "react-native": ">=0.76.0",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@react-native-async-storage/async-storage": "3.1.1",
+    "expo-device": "58.0.5",
+    "expo-file-system": "58.0.14",
+    "llama.rn": "0.13.0-rc.12",
+    "react-native": "0.88.1",
+    "zod": "4.6.7"
+  }
+}

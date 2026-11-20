@@ -1,0 +1,7 @@
+packages:
+  - packages/*
+  - apps/*
+  - functions
+  - examples/*
+  - "!examples/rn-chat"
+  - rules-tests

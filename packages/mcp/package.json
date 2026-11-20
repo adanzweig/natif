@@ -1,0 +1,38 @@
+{
+  "name": "@be-natif/mcp",
+  "version": "0.1.0",
+  "license": "Apache-2.0",
+  "description": "MCP server that helps AI coding assistants add on-device AI to apps with benatif.",
+  "type": "module",
+  "bin": {
+    "benatif-mcp": "./dist/cli.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./content": {
+      "types": "./dist/content.d.ts",
+      "import": "./dist/content.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.32.2",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@be-natif/core": "workspace:^",
+    "@types/node": "^26.6.6"
+  }
+}

@@ -1,0 +1,48 @@
+# deps & builds
+node_modules
+dist
+lib/
+!packages/*/src/lib.ts
+.turbo
+*.log
+*.tgz
+
+# secrets & local config
+.env*
+!.env.example
+local.properties
+.firebase/
+*.keystore
+*.jks
+google-services.json
+GoogleService-Info.plist
+
+# native builds
+.gradle/
+.kotlin/
+build/
+.cxx/
+.build/
+.swiftpm/
+*.xcframework
+*.so
+*.gguf
+DerivedData/
+xcuserdata/
+
+# private / old
+PLAN.md
+spikes/
+examples/rn-chat/
+rules-tests/firestore-debug.log
+.DS_Store
+apps/site/e2e/out/
+
+# private: website and hosted backend (Natif Cloud)
+apps/
+functions/
+rules-tests/
+firebase.json
+.firebaserc
+firestore.rules
+firestore.indexes.json

@@ -1,0 +1,74 @@
+{
+  "version": 1,
+  "constants": {
+    "STORAGE_HEADROOM": 1.2,
+    "AVAILABLE_MEMORY_SHARE": 0.6,
+    "TOTAL_MEMORY_SHARE": 0.5,
+    "UNKNOWN_FREE_MEMORY_CAP_MB": 4096
+  },
+  "models": [
+    {
+      "id": "qwen3-4b",
+      "family": "qwen3",
+      "capabilities": [
+        "text"
+      ],
+      "tier": "high",
+      "license": "Apache-2.0",
+      "downloadBytes": 2300000000,
+      "memoryRequiredMB": 3432,
+      "runtimes": {
+        "webllm": {
+          "f16": "Qwen3-4B-q4f16_1-MLC",
+          "f32": "Qwen3-4B-q4f32_1-MLC"
+        },
+        "gguf": {
+          "url": "https://huggingface.co/Qwen/Qwen3-4B-GGUF/resolve/main/Qwen3-4B-Q4_K_M.gguf"
+        }
+      },
+      "quality": 90,
+      "disableThinking": true
+    },
+    {
+      "id": "gemma-4-e2b",
+      "family": "gemma4",
+      "capabilities": [
+        "text",
+        "vision"
+      ],
+      "tier": "high",
+      "license": "Apache-2.0",
+      "downloadBytes": 2600000000,
+      "memoryRequiredMB": 3388,
+      "runtimes": {
+        "webllm": {
+          "f16": "gemma-4-E2B-it-q4f16_1-MLC",
+          "f32": "gemma-4-E2B-it-q4f32_1-MLC"
+        }
+      },
+      "quality": 85
+    },
+    {
+      "id": "qwen3-1.7b",
+      "family": "qwen3",
+      "capabilities": [
+        "text"
+      ],
+      "tier": "low",
+      "license": "Apache-2.0",
+      "downloadBytes": 1100000000,
+      "memoryRequiredMB": 2037,
+      "runtimes": {
+        "webllm": {
+          "f16": "Qwen3-1.7B-q4f16_1-MLC",
+          "f32": "Qwen3-1.7B-q4f32_1-MLC"
+        },
+        "gguf": {
+          "url": "https://huggingface.co/Qwen/Qwen3-1.7B-GGUF/resolve/main/Qwen3-1.7B-Q8_0.gguf"
+        }
+      },
+      "quality": 55,
+      "disableThinking": true
+    }
+  ]
+}
