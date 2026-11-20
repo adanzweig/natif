@@ -1,6 +1,6 @@
 {
   "name": "@be-natif/expo",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "On-device AI for Expo apps: same API as natif and @be-natif/react-native, llama.cpp under the hood, resumable model downloads with expo-file-system. Needs a development build (not Expo Go).",
   "homepage": "https://benatif.com",
   "repository": {
