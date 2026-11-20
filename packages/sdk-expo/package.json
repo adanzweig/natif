@@ -38,7 +38,15 @@
   "files": [
     "dist",
     "app.plugin.js",
-    "README.md"
+    "README.md",
+    "expo-module.config.json",
+    "ios/*.swift",
+    "ios/*.h",
+    "ios/*.podspec",
+    "ios/NatifSD.xcframework",
+    "android/build.gradle",
+    "android/consumer-rules.pro",
+    "android/src"
   ],
   "sideEffects": false,
   "scripts": {
